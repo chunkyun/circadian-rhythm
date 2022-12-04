@@ -1031,7 +1031,7 @@ def main(sleep_df, waso_df):
                     t_total.iloc[sleep_model[sleep_end[j]]]-t_total.iloc[0],  
                     facecolor='skyblue', alpha=0.3)
 
-    plt.savefig("./temp/graph.png", bbox_inches='tight', dpi=300)
+    plt.savefig("graph.png", bbox_inches='tight', dpi=300)
     try:
         CSS, _, ness_sleep_amount = Calcul_CSS(0, coef_x, coef_y, v_vh, tau_c, gate, main_sleep, y1_1, t1_1, tspan2, real_sl_time, real_wk_time, real_sl_time_origin, real_wk_time_origin)
         ness_sleep_amount = ness_sleep_amount[-1]

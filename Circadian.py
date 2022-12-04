@@ -11,6 +11,9 @@ name = st.sidebar.selectbox('Menu', ['📄 CSS'])
 form = st.form("my_form")
 file = form.file_uploader("Upload Data", type=["csv", "xlsx"])
 
+if os.path.exists('graph.png'):
+    os.remove('graph.png')
+
 if file is not None:
     #origin_image = pd.read_csv(image_file)
     df = pd.read_csv(file)
@@ -26,7 +29,7 @@ if file is not None:
 submitted = form.form_submit_button("수면 분석을 시작합니다.")
 
 if submitted:
-
+    fn = 'graph.png'
     CSS, ness_sleep_amount = main(sleep_light_df, waso_df)
     if CSS != -100:
         if CSS == 0.0:
@@ -41,9 +44,17 @@ if submitted:
         else:
             ns = str(np.round(ness_sleep_amount, 1)) + ' Hours'
 
-        image = Image.open('./temp/graph.png')
+        image = Image.open(fn)
         st.image(image, caption='Circadian Rhythm Graph')
         
+        with open(fn, "rb") as img:
+            btn = st.download_button(
+                label="Download image",
+                data=img,
+                file_name=fn,
+                mime="image/png"
+            )
+
         st.subheader('Sleep Satisfaction')
         st.text(is_sufficient)
         st.subheader('Necessary Sleep Amount')
@@ -51,5 +62,4 @@ if submitted:
     else:
         st.subheader('Failed to get algorithm results')
 
-if os.path.exists('./temp/graph.png'):
-    os.remove('./temp/graph.png')
+
