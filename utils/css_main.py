@@ -211,8 +211,6 @@ def main(sleep_df, waso_df):
             t1_2 = matching_temp.iloc[:,0] 
             y1_2 = matching_temp.iloc[:,1:] 
             y1_2.columns = [0,1,2,3,4,5]
-            print(day, a)
-            print(y1_2)
             Qm = ( Q_max / (1+np.exp(-(y1_2.iloc[:,5-1]-theta)/sigma)) )
 
             # % Check the difference between data and simulation
