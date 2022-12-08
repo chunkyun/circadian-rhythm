@@ -129,5 +129,5 @@ dmypy.json
 .pyre/
 
 data/
-
 graph.png
+.DS_Store
