@@ -189,8 +189,6 @@ def Data_matching(day = None,tau_c = None,wake_effort_Vm = None,wake_effort_Vv =
                                 y1_2.iloc[diff_modi:-8+1,:] = \
                                 odeint(func=PCR_shift, y0=V_0, t=t1_2.iloc[diff_modi-1: - 8,0],
                                  args=(it,i,tau_c,mu, v_vh, coef_x, coef_y, const, gate), mxords=15)
-                                print("y1_2")
-                                print(y1_2)
                             else:
                                 if (t1_2.iloc[diff_modi,0] == t1_2.iloc[- 9,0]):
                                     V_0 = [
