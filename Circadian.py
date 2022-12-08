@@ -1,7 +1,8 @@
-from utils.util import *
+from utils.css_main import *
 import streamlit as st
 from PIL import Image
 import os
+from utils.make_sleep_light import make_sleep_light
 
 pd.set_option('mode.chained_assignment',  None)
 
@@ -22,8 +23,6 @@ if file is not None:
     sleep_light_df.columns = [0,1]
     waso_df = df[['waso', 'main']]
     waso_df.columns = ['0', '1']
-    #sleep_light_df = pd.read_csv('./data/Input1_sleep_light3.csv', header=None)
-    #waso_df = pd.read_csv('./data/Input2_WASO_main3.csv', header=None)
 
 
 submitted = form.form_submit_button("수면 분석을 시작합니다.")
