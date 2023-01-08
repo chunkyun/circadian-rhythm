@@ -4,6 +4,7 @@ from scipy.integrate import odeint
 from utils.PCR import PCR
 from utils.PCR_shift import PCR_shift
 
+
 def Calcul_CSS(no_sleep = None,coef_x = None,coef_y = None,v_vh = None,tau_c = None,gate = None,main_sleep = None,y1_1 = None,t1_1 = None,tspan2 = None,real_sl_time = None,real_wk_time = None,real_sl_time_origin = None,real_wk_time_origin = None): 
     
     Q_max = 100
@@ -32,7 +33,7 @@ def Calcul_CSS(no_sleep = None,coef_x = None,coef_y = None,v_vh = None,tau_c = N
     early_confirm = np.zeros(len(main_sleep[0]))
     
     for j in range(len(main_sleep[0])):
-        confirm_early = np.where(D_v.iloc[int(real_sl_time[main_sleep[0][j]]):int(real_wk_time[main_sleep[0][j]]+1)] > 2.46)[0]
+        confirm_early = np.where(D_v.iloc[int(real_sl_time[main_sleep[0][j]-1]):int(real_wk_time[main_sleep[0][j]]+1)] > 2.46)[0]
         if (len(confirm_early) == 0):
             early_confirm[j] = 1
     
@@ -71,7 +72,7 @@ def Calcul_CSS(no_sleep = None,coef_x = None,coef_y = None,v_vh = None,tau_c = N
             necc_sleep_amount[j] = (wake_start[0] - 1) * 2 / (60 * 8)
         else:
             if CSS_temp2[j] <= 2.46:
-                Dv_temp = D_v[real_sl_time[main_sleep[0][j]]:real_wk_time[ain_sleep[j]]+1]
+                Dv_temp = D_v.iloc[int(real_sl_time[main_sleep[0][j]]):int(real_wk_time[main_sleep[0][j]]+1)]
                 over_sleep_thres = np.where(Dv_temp <= 2.46)[0]
                 early_normal = np.where(np.diff(over_sleep_thres) != 1)[0]
                 #This kind of difference can be happened
@@ -80,10 +81,10 @@ def Calcul_CSS(no_sleep = None,coef_x = None,coef_y = None,v_vh = None,tau_c = N
                 else:
                     necc_sleep_amount[j] = (over_sleep_thres(early_normal[0] + 1) - 1) * 2 / (60 * 8)
             else:
-                V_0 = y_temp[real_wk_time[main_sleep[0][j]] - 8,:]
+                V_0 = y_temp.iloc[int(real_wk_time[main_sleep[0][j]] - 8),:]
                 time_more = np.zeros(8 * 30 * 24)
                 for t_index in range(len(time_more)):
-                    time_more[t_index] = time_temp[real_wk_time[main_sleep[0][j]] - 8,:] + 2 / (60 * 8) * (t_index - 1)
+                    time_more[t_index] = time_temp.iloc[int(real_wk_time[main_sleep[0][j]] - 8),:] + 2 / (60 * 8) * (t_index - 1)
                 i_more = np.zeros(8 * 30 * 24)
                 
                 i=i_more ; it=time_more 

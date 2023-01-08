@@ -31,7 +31,7 @@ def make_sleep_light(data):
                       stop = (time_start + (time_interval/60)* real_wk_time.tail(1)).item() + 0.0001, # 끝점 미포함
                       step = (time_interval/60), dtype=float)
 
-    patt = np.repeat('Wake', len(tspan)).astype('U5')#, dtype='U25')
+    patt = np.repeat('Wake', len(tspan)).astype('U5')
 
     tspan_sl_index = []
     for j in range(len(real_wk_time)): 

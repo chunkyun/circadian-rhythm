@@ -22,14 +22,14 @@ from utils.PCR_shift import PCR_shift
 
 
 
-def main(sleep_df, waso_df):
+def main(sleep_light_df, waso_df):
 
     time_interval = 2  
     time_start = 24    
     tau_c = 24.09   
 
-    patt = sleep_df.iloc[:,0]
-    light = sleep_df.iloc[:,1]
+    patt = sleep_light_df.iloc[:,0]
+    light = sleep_light_df.iloc[:,1]
 
     if patt.tail(1).item()=='Sleep':
         patt = patt.append(pd.Series('Wake'),ignore_index=True)
@@ -124,7 +124,7 @@ def main(sleep_df, waso_df):
         tspan_temp[j] = tspan[0] + (j) * (time_interval/60)/8
 
     tspan = tspan_temp.copy()
-    real_wk_time1 = real_wk_time
+    real_wk_time1 = real_wk_time.copy()
     real_wk_time1.insert(0, 1)
     st_fi = real_wk_time1.copy() 
 
@@ -183,11 +183,8 @@ def main(sleep_df, waso_df):
                                                       y0=V_0, t=t1_1[wakeup[0]+sleep_re[0]-1:], 
                                                       args=(it,i,tau_c,mu, v_vh, coef_x, coef_y, const, gate), mxords=15)
 
-            #tspan2(wakeup[0]+sleep_re[0]-1:end), V_0)      
-
     flag = 0                                                                
-
-    # %Dummy index for checking match between real and predicted sleep-                       
+              
     y1_1 = pd.DataFrame(y1_1) 
     for day in range(len(st_fi)-1):
         # Simulation only with light data
@@ -302,7 +299,7 @@ def main(sleep_df, waso_df):
 
     lw = 5
     plt.figure(figsize=(30,10))
-    plt.plot(t_total-t_total.iloc[0], D_up, 'y-',linewidth=lw)#, label='theta(t)') 
+    plt.plot(t_total-t_total.iloc[0], D_up, 'y-',linewidth=lw)
 
     #hold on
     plt.plot(t_total-t_total.iloc[0], H, 'k-',linewidth=lw)
@@ -315,8 +312,58 @@ def main(sleep_df, waso_df):
                     facecolor='skyblue', alpha=0.3)
 
     plt.savefig("graph.png", bbox_inches='tight', dpi=300)
+    
+    #% CSS
+    #% Use first sleep time in 12:00-12:00 rather than 0:00-24:00
+    sleep_time = tspan[real_sl_time[main_sleep[0][0]]] % 24
+    
+    if sleep_time < 12:
+        sleep_time = sleep_time + 24
+        
+    sleep_time = sleep_time - 12
+    
+    #% [v] 에러 해결
+    day_temp = np.floor((tspan[real_sl_time[main_sleep[0][-1]]] - tspan[real_sl_time[main_sleep[0][0]]]-(24.0-sleep_time))/24.0)    
+    day_remain = (tspan[real_sl_time[main_sleep[0][-1]]] - tspan[real_sl_time[main_sleep[0][0]]] - (24-sleep_time)) % 24
+    
+    day_new = 1 + day_temp                                                 
+
+    
+    if day_remain > 0:
+        day_new = day_new + 1
+        
+    base_of_sleep = np.floor((tspan[real_sl_time[main_sleep[0][0]]]-(24*start_num+12))/24)
+         
+    # We need to find the day which does not have main sleep 
+    no_sleep = []
+    if len(main_sleep[0]) < day_new:
+        day_set = np.zeros(len(main_sleep[0]))
+        for j in range(len(main_sleep[0])):
+            day_set[j] = np.floor((tspan[real_sl_time[main_sleep[0][j]]]-
+                                tspan[real_sl_time[main_sleep[0][0]]]-
+                                (24-sleep_time))/24)+2
+        for j in range(int(day_new)):
+            trick_day = np.where(day_set==j+1)[0] 
+            if len(trick_day) == 2:
+                if (len(np.where(day_set==j)[0]) == 0 & len(np.where[day_set==j+1+1][0]) != 0):
+                    day_set[trick_day[0]] = day_set[trick_day[0]] - 1
+                elif (len(np.where(day_set==j)[0]) != 0 & len(np.where[day_set==j+1+1][0]) == 0):
+                    day_set[trick_day[1]] = day_set[trick_day[1]] + 1
+                else:
+                    trick1 = (tspan[real_sl_time[main_sleep[0][trick_day[0]]]]-
+                              tspan[real_sl_time[main_sleep[0][0]]]-(24-sleep_time)) % 24
+                    trick2 = (tspan[real_sl_time[main_sleep[0][trick_day[1]]]]-
+                              tspan[real_sl_time[main_sleep[0][0]]]-(24-sleep_time)) % 24
+                    if trick1 <= 6:
+                        day_set[trick_day[0]] = day_set[trick_day[0]] - 1
+                    if trick2 >= 6+12:
+                        day_set[trick_day[1]] = day_set[trick_day[1]] + 1
+        for j in range(int(day_new)):
+            if len(np.where(day_set==j+1)[0]) == 0:
+                no_sleep.append(j)
+    
     try:
-        CSS, _, ness_sleep_amount = Calcul_CSS(0, coef_x, coef_y, v_vh, tau_c, gate, main_sleep, y1_1, t1_1, tspan2, real_sl_time, real_wk_time, real_sl_time_origin, real_wk_time_origin)
+        CSS, _, ness_sleep_amount = Calcul_CSS(len(no_sleep)+base_of_sleep, coef_x, coef_y, v_vh, tau_c, gate, main_sleep, y1_1, t1_1, tspan2, real_sl_time, real_wk_time, real_sl_time_origin, real_wk_time_origin)
         ness_sleep_amount = ness_sleep_amount[-1]
     except:
         CSS = -99

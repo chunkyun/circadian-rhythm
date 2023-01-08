@@ -31,15 +31,18 @@ if submitted:
     fn = 'graph.png'
     CSS, ness_sleep_amount = main(sleep_light_df, waso_df)
     if CSS != -100:
-        if CSS == 0.0:
-            is_sufficient = 'Insufficient'
-        elif CSS == 1.0:
-            is_sufficient = 'Sufficient'
-        elif CSS == -99:
+        if CSS == -99:
             is_sufficient = 'Not Available'
+        elif CSS < 0.5:
+            is_sufficient = 'Insufficient'
+        elif CSS >= 0.5:
+            is_sufficient = 'Sufficient'
+        
         
         if ness_sleep_amount == -99:
             ns = 'Not Available'
+        elif ness_sleep_amount <= 0:
+            ns = str(0)
         else:
             ns = str(np.round(ness_sleep_amount, 1)) + ' Hours'
 
